@@ -11,10 +11,11 @@
 -- --------------------------------------------
 
 local defaultScale = 0.5 -- Text scale
-local color = { r = 230, g = 230, b = 230, a = 255 } -- Text color
+local color = { r = 40, g = 244, b = 8, a = 255 } -- Text color
+local colordo = { r = 0, g = 0, b = 255, a = 255 } -- Text color
 local font = 0 -- Text font
-local displayTime = 5000 -- Duration to display the text (in ms)
-local distToDraw = 250 -- Min. distance to draw 
+local displayTime = 12000 -- Duration to display the text (in ms)
+local distToDraw = 150 -- Min. distance to draw 
 
 -- --------------------------------------------
 -- Variable
@@ -30,7 +31,7 @@ local pedDisplaying = {}
 -- PARAMETERS :
 --      - coords : world coordinates to where you want to draw the text
 --      - text : the text to display
-local function DrawText3D(coords, text)
+local function DrawText3D(coords, text, rptype)
     local camCoords = GetGameplayCamCoord()
     local dist = #(coords - camCoords)
     
@@ -40,7 +41,11 @@ local function DrawText3D(coords, text)
     --if onScreen then
 
         -- Format the text
-        SetTextColour(color.r, color.g, color.b, color.a)
+        if rptype == "me" then
+            SetTextColour(color.r, color.g, color.b, color.a)
+        else
+            SetTextColour(colordo.r, colordo.g, colordo.b, colordo.a)
+        end
         SetTextScale(0.0, defaultScale * scale)
         SetTextDropshadow(0, 0, 0, 0, 55)
         SetTextDropShadow()
@@ -60,7 +65,7 @@ end
 -- PARAMETERS :
 --      - coords : world coordinates to where you want to draw the text
 --      - text : the text to display
-local function Display(ped, text)
+local function Display(ped, text, rptype)
 
     local playerPed = PlayerPedId()
     local playerCoords = GetEntityCoords(playerPed)
@@ -85,7 +90,7 @@ local function Display(ped, text)
             if HasEntityClearLosToEntity(playerPed, ped, 17 ) then
                 local x, y, z = table.unpack(GetEntityCoords(ped))
                 z = z + offset
-                DrawText3D(vector3(x, y, z), text)
+                DrawText3D(vector3(x, y, z), text, rptype)
             end
             Wait(0)
         end
@@ -100,7 +105,8 @@ end
 -- --------------------------------------------
 
 RegisterNetEvent('3dme:shareDisplay')
-AddEventHandler('3dme:shareDisplay', function(text, serverId)
+AddEventHandler('3dme:shareDisplay', function(text, serverId, cmdtype)
     local ped = GetPlayerPed(GetPlayerFromServerId(serverId))
-    Display(ped, text)
+    local rptype = cmdtype
+    Display(ped, text, rptype)
 end)
